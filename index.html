@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pagenation</title>
+  <!-- bootstrap -->
+  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <style>
+    ul{
+      list-style: none;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>ページネーション：fromVUE</h1>
+  <div id="app">
+    <h1>ページ{{currentPage}}</h1>
+    <select name="" id="select" v-model="selected">
+      <option value="" selected>全部卍盛り</option>
+      <option value="okasi">例えばお菓子とか絞り込み</option>
+      <option value="etc">その他</option>
+    </select>
+    <ul>
+      <li v-for="data in getLists">
+        {{data.id}}：{{data.name}}
+      </li>
+    </ul>
+    <paginate
+    :page-count="getPageCount"
+    :page-range="3"
+    :margin-pages="2" 
+    :container-class="'pagination'" 
+    :click-handler="clickCallback" 
+    :prev-text="'＜'"
+    :next-text="'＞'"
+    :page-class="'page-item'"></paginate>
+  </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/vuejs-paginate@latest"></script>
+<script>
+  Vue.component('paginate', VuejsPaginate)
+  new Vue({
+    el: '#app',
+    data: {
+      dataLists: [],
+      parPage: 5,
+      currentPage: 1,
+      selected: ''
+    },
+    created() {
+      // json入れ込み
+      axios.get('./js/news.json')
+        .then(response => {
+          this.dataLists = response.data;
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    },
+    methods: {
+      clickCallback: function(pageNum){
+        this.currentPage = Number(pageNum)
+      }
+    },
+    computed: {
+      getItems: function(){
+        let self = this;
+        return this.dataLists.filter(function(item){
+          return String(item.option).indexOf(self.selected) !== -1;
+        });
+      },
+      getLists: function () {
+        // この時点でthis.currentPageは1、clickCallbackで変わるから最大表示ページが変わる
+        let current = this.currentPage * this.parPage;
+        let start = current - this.parPage;
+        // startを始まりにcurrentまでスライスして返す
+        return this.getItems.slice(start, current);
+      },
+      getPageCount: function(){
+        // ページのカウントを毎回行う
+        return Math.ceil(this.getItems.length / this.parPage)
+      }
+    },
+    watch: {
+      // watchしてselectedが変わるたびにthis.currentPageの位置に変える。
+      selected: function(){
+        this.currentPage = 1
+      }
+    }
+    
+  })
+</script>
+</html>

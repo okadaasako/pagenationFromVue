@@ -19,9 +19,9 @@
   <div id="app">
     <h1>ページ{{currentPage}}</h1>
     <select name="" id="select" v-model="selected">
-      <option value="" selected>全部卍盛り</option>
-      <option value="okasi">例えばお菓子とか絞り込み</option>
-      <option value="etc">その他</option>
+      <option value="" selected>！！全部卍盛り！！</option>
+      <option value="bourbon">ブルボン</option>
+      <option value="morinaga">森永</option>
     </select>
     <ul>
       <li v-for="data in getLists">
@@ -53,7 +53,7 @@
       selected: ''
     },
     created() {
-      // json入れ込み
+      // json入れ込み（お約束感）
       axios.get('./js/news.json')
         .then(response => {
           this.dataLists = response.data;
@@ -87,7 +87,7 @@
       }
     },
     watch: {
-      // watchしてselectedが変わるたびにthis.currentPageの位置に変える。
+      // watchしてselectedが変わるたびにthis.currentPageの位置を最初の1ページに変える。
       selected: function(){
         this.currentPage = 1
       }
